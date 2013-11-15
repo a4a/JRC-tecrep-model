@@ -1,0 +1,2415 @@
+\documentclass[a4paper]{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage[bottom]{footmisc}
+\geometry{verbose,a4paper,tmargin=3cm,bmargin=2cm,lmargin=2cm,rmargin=3cm}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+
+
+
+
+
+
+
+\begin{abstract}
+The a4a initiative aims to provide timely and cost effective advice for the circa. 250 fish stocks that, through the EU Data Collection Framework, will have at least 10 years of data by the year 2020. Current processes for assessing the state of and managing fish stocks are intensive processes, each stock requiring the attention of one or more stock assessment scientist to produce preliminary catch advice, which is subsequently reviewed by one or two committees before the final catch advice is published. Ingrained in the development of these processes has been the development of more and more complex stock assessment models which typically require highly skilled personnel to set up and run. \\
+
+The a4a initiative seeks to overcome these issues by developing a flexible, robust and easy to use stock assessment model, thus making stock assessment accessible to a wide range of scientists that do not have the high skilled quantitative background required to run very complex models. Forthcoming research will describe how to overcome the burden of producing catch advice for such a large number of stocks. This technical report presents a new stock assessment model along with a set of validatory tests developed under the a4a Initiative.
+\end{abstract} 
+
+\section*{Introduction}
+
+The a4a Initiative is a visionary reseach initiative aiming to provide method to use the increasing amounts of data on fish stocks being collected under the Data Collection Framework (DCF). The implementation of the 2009 revision of the DCF \footnote{Data Collection Framework (2008/949/EC)} generated the obligation to collect a large amount of information for all stocks being subject to fisheries exploitation. Based on the regulation there are 250+ stocks for which some kind of biological information must be collected. Most of these stocks will have in thefuture, $\sim$2020, time series of exploitation data more than 10 years long, although the biological information will most likely be limited due to the high human resources requirements to process all the samples collected. These stocks (will) have a moderate amount of information and won't fit into the \textquotedbl{}data poor\textquotedbl{} stock definition. In addition, due to the large number of these stocks, it is not logistically feasible to run on all of them complex data eager models that require a high level of expertise. What is required is a robust methodology that allows the assessments of a large number of stocks by stock assessment experts with distinct backgrounds. 
+
+Estimating demographics and exploitation rates of fish stocks is the basis of current management advice across most of the world.  Assessing the state of stocks has been developing over the last 50 to 100 years, and during this period many models have evolved and there are around 40 stock assessment methods in use today (SCISAM report).  Some examples of age based methods in current use are XSA (Shepherd, 1992), ASM (NOAA Fisheries Toolbox), TSA (Fryer 1999, Gudmundson 1990) and SAM (Neilsen, 2008) and all are based on similar underlying assumptions regarding stock dynamics. The main differences between these methods is in how they consider the data and how the fishery dynamics are modelled, and of course the user interface. This report presents a framework which allows the construction of models that mimic many of the currently available age based stock assessment methods in a statistical setting, while also making available current statistical modelling techniques such as additive models (Wood, 2006) and structured random effects (Rue and Held, 2005).
+
+The model is a simple statistical catch at age model in which the population dynamics are simply that the numbers of fish in a cohort declines from year to year due to a combination of natural mortality and fishing mortality.  We in effect observe the population through the catches removed by the fishery and more directly through a survey conducted at some point in the year.  Where the complexity and diversity in stock assessment models arise is usually in how fishing mortality is modelled.  Because it is not possible to estimate everything (the model parameters would be unidentifiable) it is nessisary to constrain it, and this can be done in many ways.  Here, we propose the use of splines and random effects to provide a robust and efficient way to constrain the model, and this is packaged in a robust and user freindly statistical framework.
+
+The Report begins with a breif technical description of the model with two examples to demonstrate the application of the model to the North Sea plaice data set.  Extensions are breifly discussed.  The second half of the report is a presentation of extensive model testing and validation on simulated data sets.  The simulation procedure is described and the data sets presented.  Finally the model is fitted to each data set and a selection of fits are shown.
+
+\section*{Model Description}
+
+The basis of the model is
+\begin{align*}
+  N_{a+1,t+1} &= N_{at} e^{-(F_{at}+M_{at})}
+\end{align*}
+predicted \textbf{catches} are
+\begin{align*}
+  \hat{C}_{at} = \frac{F_{at}}{F_{at}+M_{at}}\left(1-e^{-(F_{at}+M_{at})}\right) N_{at}
+\end{align*}
+and predicted survey \textbf{indices} are
+\begin{align*}
+  \hat{I}_{at} = Q_{a} N_{at} e^{-\delta ( F_{at}+M_{at})}
+\end{align*}
+
+
+So the predictions are completely determined by:
+\begin{align*}
+  R_t = N_{1,t} \quad &\text{i.e. recruitment} \\
+  A_a = N_{a,1} \quad &\text{i.e. initial age structure} \\
+  F_{at} \phantom{= N_{a,1}} \quad &\text{i.e. Fishing mortality} \\
+  Q_a \phantom{= N_{a,1}} \quad &\text{i.e. catchability at age}
+\end{align*}
+
+and we observe these through
+\begin{align*}
+  \log I_{at} &\sim N \Bigg( \log \hat{I}_{at}, \quad \sigma_a  \Bigg) \\
+  \log C_{at} &\sim N \Bigg( \log \hat{C}_{at}, \quad \tau_a  \Bigg)
+\end{align*}
+
+
+We parameterise the model using linear models.
+\begin{align*}
+  \text{i.e.} \quad \log F_{at} \sim \text{factor}(age) + \text{factor}(year)
+\end{align*}
+or
+\begin{align*}
+  \phantom{\text{i.e.}} \quad \log F_{at} \sim \text{s}(age) + \text{factor}(year)
+\end{align*}
+
+\bigskip
+\textbf{These are examples of seperable F assumptions} \\
+\medskip
+The function s(.) is a smooth function (stolen from the mgcv package in R)
+
+
+\subsection*{A simple example: seperable F}
+
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-4} 
+
+}
+
+\caption[A simple example]{A simple example: seperable F\label{fig:unnamed-chunk-4}}
+\end{figure}
+
+\end{knitrout}
+
+\begin{align*}
+  \log F_{at} &\sim \text{s}(age, 4) + \text{factor}(year) \\
+  \log Q_{a}  &\sim \text{s}(age, 4)
+\end{align*}
+
+
+\subsection*{A more complex example: Changing F pattern}
+
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-6} 
+
+}
+
+\caption[A more complex example]{A more complex example: Changing F pattern\label{fig:unnamed-chunk-6}}
+\end{figure}
+
+\end{knitrout}
+
+\begin{align*}
+  \log F_{at} &\sim \text{s}(age, year, (4,30)) \\
+  \log Q_{a}  &\sim \text{s}(age, 4)
+\end{align*}
+
+
+\subsection*{Extensions}
+
+We can introduce covariates through the formulas. Include tecnological creep in surveys. Add temperature data to recruitment. Model spikes in recruitment in terms of environmental covariates. we can allow changes in survey selectivity. by using 2d smooths - useful perhaps for North Sea plaice surveys
+
+However, The model has the potential to be very complex: random effects (fixed variance) around log F, log Q, log R; All the complaints people have with gams exist here.  But,we can package it to reduce the options available:
+  \begin{itemize}
+    \item stable fishery (seperable F)
+    \item Changing fishery (F pattern can evolve)
+    \item Impose exponential survey selectivity
+    \item impose flat top selection
+  \end{itemize}
+
+
+\section*{Model Tests}
+
+Here follows the simulation testing design:
+
+\begin{enumerate}
+	\item Tests run on WKLIFE simulated stocks.
+	\item Stocks in 5 different exploitation status used:
+	\begin{itemize}
+		\item developing
+		\item developing and stabilizing
+		\item stable at high exploitation
+		\item recovery
+		\item full developing-stable-recovery
+	\end{itemize}
+	\item Data series 15 years long, except "full" with 50 years.
+	\item Survey index with decreasing catchability, bottom trawl type, with 10\% cv. Note that the survey index becomes very informative with abundance between all ages correlated. 
+	\item Catch-at-age with 10\% cv observation error. 
+\end{enumerate}
+
+\subsection*{Inputs}
+\subsubsection*{Developing}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-7} 
+
+}
+
+\caption[Developing fishery]{Developing fishery. Stocks based on WKLIFE life history parameters list.\label{fig:unnamed-chunk-7}}
+\end{figure}
+
+\end{knitrout}
+
+
+\subsubsection*{Developing and stabilizing}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-8} 
+
+}
+
+\caption[Developing and stabilizing fishery]{Developing and stabilizing fishery. Stocks based on WKLIFE life history parameters list.\label{fig:unnamed-chunk-8}}
+\end{figure}
+
+\end{knitrout}
+
+
+\subsubsection*{Stable at high exploitation}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-9} 
+
+}
+
+\caption[Stable at high exploitation fishery]{Stable at high exploitation fishery. Stocks based on WKLIFE life history parameters list.\label{fig:unnamed-chunk-9}}
+\end{figure}
+
+\end{knitrout}
+
+
+\subsubsection*{Recovery}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-10} 
+
+}
+
+\caption[Recovery fishery]{Recovery fishery. Stocks based on WKLIFE life history parameters list.\label{fig:unnamed-chunk-10}}
+\end{figure}
+
+\end{knitrout}
+
+
+\subsubsection*{Full developing-stable-recovery}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-11} 
+
+}
+
+\caption[Full developing-stable-recovery fishery]{Full developing-stable-recovery fishery. Stocks based on WKLIFE life history parameters list.\label{fig:unnamed-chunk-11}}
+\end{figure}
+
+\end{knitrout}
+
+
+\subsubsection*{Generating survey index and adding observation error to catches}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlfunctioncall{set.seed}(239246)
+stks01 <- \hlfunctioncall{mclapply}(stks01, genObs)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+genObs
+\end{alltt}
+\begin{verbatim}
+## function(x) {
+##   stock <- x $ stock	
+## 	ages <- 1:min(9, range(stock)["max"])
+## 	range(stock)[c("minfbar","maxfbar")] <- c(2, min(5, max(ages)))
+## 	stock <- setPlusGroup(stock, max(ages))
+##   n <- stock.n(stock)
+##   z <- harvest(stock) + m(stock)
+##   logq <- -exp(-exp(0.2 * ages)) - 3 # trawl like catchability
+##   # observe index in 1st quarter with 10% cv
+##   index <- FLIndex(index = n * exp(-0.25 * z) * exp(logq + rnorm(prod(dim(n)), 0, .1)))  # 10% cv
+##   range(index)[c("startf","endf")] <- 0.25
+##   # observe catch with 10% cv
+##   catch.n(stock) <- catch.n(stock) * exp(rnorm(prod(dim(n)), 0, .1)) # 10% cv
+##   catch(stock) <- computeCatch( stock )
+##   list(stock = stock, index = list(index))
+## }
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+stks02 <- \hlfunctioncall{mclapply}(stks02, genObs)
+\hlcomment{#}
+stks03 <- \hlfunctioncall{mclapply}(stks03, genObs)
+\hlcomment{#}
+stks04 <- \hlfunctioncall{mclapply}(stks04, genObs)
+\hlcomment{#}
+stks05 <- \hlfunctioncall{mclapply}(stks05, genObs)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\subsubsection*{Model fit}
+
+The model chosen for simulation testing has an evolving F pattern in which the F-at-age patter has 4 degrees of freedom and evovles over time with 10 degrees of freedom.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fmodel <- ~\hlfunctioncall{te}(age, year, k = \hlfunctioncall{c}(4, 10))
+qmodel <- \hlfunctioncall{list}(~\hlfunctioncall{factor}(age))
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fits01 <- \hlfunctioncall{mclapply}(stks01, doFits, fmodel = fmodel, qmodel = qmodel)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+here the fitting function has been placed in a wrapper function to catch errors.  Normally the user would fit the model using a single call to \verb|a4aFit|
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+doFits
+\end{alltt}
+\begin{verbatim}
+## function(x, fmodel, qmodel, rmodel = ~ factor(year)) {
+##   msg <- paste0("fitting ", x$stock@name, " in PID: ", Sys.getpid(), "\n")   
+##   cat(msg)
+##   fit <- try( a4aFit(fmodel, qmodel, rmodel, x$stock, x$index) )
+##   if (is(fit, "try-error")) {
+##     fit 
+##   } else {
+##     list(sim = x$stock, fit = fit)
+##   }
+## }
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fits02 <- \hlfunctioncall{mclapply}(stks02, doFits, fmodel = fmodel, qmodel = qmodel)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fits03 <- \hlfunctioncall{mclapply}(stks03, doFits, fmodel = fmodel, qmodel = qmodel)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fits04 <- \hlfunctioncall{mclapply}(stks04, doFits, fmodel = fmodel, qmodel = qmodel)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fits05 <- \hlfunctioncall{mclapply}(stks05, doFits, fmodel = fmodel, qmodel = qmodel)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\subsection*{Model diagnostics}
+\subsubsection*{Developing}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-221} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-221}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-222} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-222}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-223} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-223}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-224} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-224}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-225} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-225}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-226} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-226}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-227} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-227}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-228} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-228}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-229} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-229}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2210} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2210}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2211} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2211}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2212} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2212}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2213} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2213}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2214} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2214}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2215} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2215}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2216} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2216}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2217} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2217}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2218} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2218}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2219} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2219}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2220} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2220}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2221} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2221}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2222} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2222}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2223} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2223}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2224} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2224}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2225} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2225}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2226} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2226}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2227} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2227}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2228} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2228}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2229} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2229}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2230} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2230}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2231} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2231}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2232} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2232}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2233} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2233}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2234} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2234}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2235} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2235}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2236} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2236}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2237} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2237}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2238} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2238}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2239} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2239}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2240} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2240}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2241} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2241}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2242} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-2242}}
+\end{figure}
+\begin{kframe}
+
+{\ttfamily\noindent\bfseries\textcolor{errorcolor}{\#\# Error: need finite 'ylim' values}}\end{kframe}
+\end{knitrout}
+
+
+\subsubsection*{Developing and stabilizing}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-231} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-231}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-232} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-232}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-233} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-233}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-234} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-234}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-235} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-235}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-236} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-236}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-237} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-237}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-238} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-238}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-239} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-239}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2310} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2310}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2311} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2311}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2312} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2312}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2313} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2313}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2314} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2314}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2315} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2315}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2316} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2316}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2317} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2317}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2318} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2318}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2319} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2319}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2320} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2320}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2321} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2321}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2322} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2322}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2323} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2323}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2324} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2324}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2325} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2325}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2326} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2326}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2327} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2327}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2328} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2328}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2329} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2329}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2330} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2330}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2331} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2331}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2332} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2332}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2333} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2333}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2334} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2334}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2335} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2335}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2336} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2336}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2337} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2337}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2338} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2338}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2339} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2339}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2340} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2340}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2341} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2341}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2342} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2342}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2343} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2343}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2344} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2344}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2345} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2345}}
+\end{figure}
+\begin{kframe}
+
+{\ttfamily\noindent\bfseries\textcolor{errorcolor}{\#\# Error: need finite 'ylim' values}}\end{kframe}
+\end{knitrout}
+
+
+\subsubsection*{Stable at high exploitation}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-241} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-241}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-242} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-242}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-243} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-243}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-244} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-244}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-245} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-245}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-246} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-246}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-247} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-247}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-248} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-248}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-249} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-249}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2410} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2410}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2411} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2411}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2412} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2412}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2413} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2413}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2414} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2414}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2415} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2415}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2416} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2416}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2417} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2417}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2418} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2418}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2419} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2419}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2420} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2420}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2421} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2421}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2422} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2422}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2423} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2423}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2424} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2424}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2425} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2425}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2426} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2426}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2427} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2427}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2428} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2428}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2429} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2429}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2430} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2430}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2431} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2431}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2432} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2432}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2433} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2433}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2434} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2434}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2435} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2435}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2436} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2436}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2437} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2437}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2438} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2438}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2439} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2439}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2440} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2440}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2441} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2441}}
+\end{figure}
+\begin{kframe}
+
+{\ttfamily\noindent\bfseries\textcolor{errorcolor}{\#\# Error: need finite 'ylim' values}}\end{kframe}
+\end{knitrout}
+
+
+\subsubsection*{Recovery}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-251} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-251}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-252} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-252}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-253} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-253}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-254} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-254}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-255} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-255}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-256} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-256}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-257} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-257}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-258} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-258}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-259} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-259}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2510} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2510}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2511} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2511}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2512} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2512}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2513} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2513}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2514} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2514}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2515} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2515}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2516} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2516}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2517} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2517}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2518} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2518}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2519} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2519}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2520} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2520}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2521} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2521}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2522} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2522}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2523} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2523}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2524} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2524}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2525} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2525}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2526} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2526}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2527} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2527}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2528} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2528}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2529} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2529}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2530} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2530}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2531} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2531}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2532} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2532}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2533} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2533}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2534} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2534}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2535} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2535}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2536} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2536}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2537} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2537}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2538} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2538}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2539} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2539}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2540} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2540}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2541} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2541}}
+\end{figure}
+\begin{kframe}
+
+{\ttfamily\noindent\bfseries\textcolor{errorcolor}{\#\# Error: need finite 'ylim' values}}\end{kframe}
+\end{knitrout}
+
+
+\subsubsection*{Full developing-stable-recovery}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-261} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-261}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-262} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-262}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-263} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-263}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-264} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-264}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-265} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-265}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-266} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-266}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-267} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-267}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-268} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-268}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-269} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-269}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2610} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2610}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2611} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2611}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2612} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2612}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2613} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2613}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2614} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2614}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2615} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2615}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2616} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2616}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2617} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2617}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2618} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2618}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2619} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2619}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2620} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2620}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2621} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2621}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2622} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2622}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2623} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2623}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2624} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2624}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2625} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2625}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2626} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2626}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2627} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2627}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2628} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2628}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2629} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2629}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2630} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2630}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2631} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2631}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2632} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2632}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2633} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2633}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2634} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2634}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2635} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2635}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2636} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2636}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2637} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2637}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2638} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2638}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2639} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2639}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2640} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2640}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2641} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2641}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-2642} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colors represent ages\label{fig:unnamed-chunk-2642}}
+\end{figure}
+\begin{kframe}
+
+{\ttfamily\noindent\bfseries\textcolor{errorcolor}{\#\# Error: need finite 'ylim' values}}\end{kframe}
+\end{knitrout}
+
+
+
+\section*{Appendix}
+
+\subsection*{R Session Information}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlfunctioncall{sessionInfo}()
+\end{alltt}
+\begin{verbatim}
+## R version 2.15.2 (2012-10-26)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=C                 LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] splines   grid      datasets  utils     stats     graphics  grDevices
+## [8] methods   base     
+## 
+## other attached packages:
+##  [1] ggplotFL_0.1     ggplot2_0.9.2.1  multicore_0.1-7  Hmisc_3.10-1    
+##  [5] survival_2.36-14 plyr_1.7.1       FLa4av2_0.1.1    mgcv_1.7-22     
+##  [9] Matrix_1.0-10    FLAssess_2.5.0   FLCore_2.5.0     knitr_0.8       
+## [13] lattice_0.20-10  MASS_7.3-22      vimcom_0.9-2     setwidth_1.0-0  
+## [17] colorout_0.9-9  
+## 
+## loaded via a namespace (and not attached):
+##  [1] cluster_1.14.3     colorspace_1.2-0   dichromat_1.2-4   
+##  [4] digest_0.5.2       evaluate_0.4.2     formatR_0.6       
+##  [7] gtable_0.1.1       labeling_0.1       memoise_0.1       
+## [10] munsell_0.4        nlme_3.1-105       proto_0.3-9.2     
+## [13] RColorBrewer_1.0-5 reshape2_1.2.1     scales_0.2.2      
+## [16] stats4_2.15.2      stringr_0.6.1      tools_2.15.2
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\end{document}
+

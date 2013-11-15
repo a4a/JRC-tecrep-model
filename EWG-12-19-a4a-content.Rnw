@@ -1,0 +1,305 @@
+\documentclass[a4paper]{article}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage[bottom]{footmisc}
+\geometry{verbose,a4paper,tmargin=3cm,bmargin=2cm,lmargin=2cm,rmargin=3cm}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+<<echo=FALSE, results='hide', message=FALSE, warning=FALSE>>=
+library(FLa4av2)
+library(ggplotFL)
+library(plyr)
+library(Hmisc)
+library(multicore)
+load("stocks.RData")
+source("utilities.R")
+@
+
+<<echo=FALSE>>=
+opts_chunk$set(fig.align='center', fig.pos='H', fig.keep="last", cache=TRUE)
+knit_hooks$set(crop = hook_pdfcrop)
+@
+
+
+\begin{abstract}
+The a4a initiative aims to provide timely and cost effective advice for the circa. 250 fish stocks that, through the EU Data Collection Framework, will have at least 10 years of data by the year 2020. Current processes for assessing the state of and managing fish stocks are intensive processes, each stock requiring the attention of one or more stock assessment scientist to produce preliminary catch advice, which is subsequently reviewed by one or two committees before the final catch advice is published. Ingrained in the development of these processes has been the development of more and more complex stock assessment models which typically require highly skilled personnel to set up and run. \\
+
+The a4a initiative seeks to overcome these issues by developing a flexible, robust and easy to use stock assessment model, thus making stock assessment accessible to a wide range of scientists that do not have the high skilled quantitative background required to run very complex models. Forthcoming research will describe how to overcome the burden of producing catch advice for such a large number of stocks. This technical report presents a new stock assessment model along with a set of validatory tests developed under the a4a Initiative.
+\end{abstract} 
+
+\section*{Introduction}
+
+The a4a Initiative is a visionary reseach initiative aiming to provide method to use the increasing amounts of data on fish stocks being collected under the Data Collection Framework (DCF). The implementation of the 2009 revision of the DCF \footnote{Data Collection Framework (2008/949/EC)} generated the obligation to collect a large amount of information for all stocks being subject to fisheries exploitation. Based on the regulation there are 250+ stocks for which some kind of biological information must be collected. Most of these stocks will have in thefuture, $\sim$2020, time series of exploitation data more than 10 years long, although the biological information will most likely be limited due to the high human resources requirements to process all the samples collected. These stocks (will) have a moderate amount of information and won't fit into the \textquotedbl{}data poor\textquotedbl{} stock definition. In addition, due to the large number of these stocks, it is not logistically feasible to run on all of them complex data eager models that require a high level of expertise. What is required is a robust methodology that allows the assessments of a large number of stocks by stock assessment experts with distinct backgrounds. 
+
+Estimating demographics and exploitation rates of fish stocks is the basis of current management advice across most of the world.  Assessing the state of stocks has been developing over the last 50 to 100 years, and during this period many models have evolved and there are around 40 stock assessment methods in use today (SCISAM report).  Some examples of age based methods in current use are XSA (Shepherd, 1992), ASM (NOAA Fisheries Toolbox), TSA (Fryer 1999, Gudmundson 1990) and SAM (Neilsen, 2008) and all are based on similar underlying assumptions regarding stock dynamics. The main differences between these methods is in how they consider the data and how the fishery dynamics are modelled, and of course the user interface. This report presents a framework which allows the construction of models that mimic many of the currently available age based stock assessment methods in a statistical setting, while also making available current statistical modelling techniques such as additive models (Wood, 2006) and structured random effects (Rue and Held, 2005).
+
+The model is a simple statistical catch at age model in which the population dynamics are simply that the numbers of fish in a cohort declines from year to year due to a combination of natural mortality and fishing mortality.  We in effect observe the population through the catches removed by the fishery and more directly through a survey conducted at some point in the year.  Where the complexity and diversity in stock assessment models arise is usually in how fishing mortality is modelled.  Because it is not possible to estimate everything (the model parameters would be unidentifiable) it is nessisary to constrain it, and this can be done in many ways.  Here, we propose the use of splines and random effects to provide a robust and efficient way to constrain the model, and this is packaged in a robust and user freindly statistical framework.
+
+The Report begins with a breif technical description of the model with two examples to demonstrate the application of the model to the North Sea plaice data set.  Extensions are breifly discussed.  The second half of the report is a presentation of extensive model testing and validation on simulated data sets.  The simulation procedure is described and the data sets presented.  Finally the model is fitted to each data set and a selection of fits are shown.
+
+\section*{Model Description}
+
+The basis of the model is
+\begin{align*}
+  N_{a+1,t+1} &= N_{at} e^{-(F_{at}+M_{at})}
+\end{align*}
+predicted \textbf{catches} are
+\begin{align*}
+  \hat{C}_{at} = \frac{F_{at}}{F_{at}+M_{at}}\left(1-e^{-(F_{at}+M_{at})}\right) N_{at}
+\end{align*}
+and predicted survey \textbf{indices} are
+\begin{align*}
+  \hat{I}_{at} = Q_{a} N_{at} e^{-\delta ( F_{at}+M_{at})}
+\end{align*}
+
+
+So the predictions are completely determined by:
+\begin{align*}
+  R_t = N_{1,t} \quad &\text{i.e. recruitment} \\
+  A_a = N_{a,1} \quad &\text{i.e. initial age structure} \\
+  F_{at} \phantom{= N_{a,1}} \quad &\text{i.e. Fishing mortality} \\
+  Q_a \phantom{= N_{a,1}} \quad &\text{i.e. catchability at age}
+\end{align*}
+
+and we observe these through
+\begin{align*}
+  \log I_{at} &\sim N \Bigg( \log \hat{I}_{at}, \quad \sigma_a  \Bigg) \\
+  \log C_{at} &\sim N \Bigg( \log \hat{C}_{at}, \quad \tau_a  \Bigg)
+\end{align*}
+
+
+We parameterise the model using linear models.
+\begin{align*}
+  \text{i.e.} \quad \log F_{at} \sim \text{factor}(age) + \text{factor}(year)
+\end{align*}
+or
+\begin{align*}
+  \phantom{\text{i.e.}} \quad \log F_{at} \sim \text{s}(age) + \text{factor}(year)
+\end{align*}
+
+\bigskip
+\textbf{These are examples of seperable F assumptions} \\
+\medskip
+The function s(.) is a smooth function (stolen from the mgcv package in R)
+
+
+\subsection*{A simple example: seperable F}
+
+<<echo=FALSE, results='hide', message=FALSE, warning=FALSE>>= 
+  data(ple4)
+  data(ple4.indices)
+  fmodel <- ~ s(age, k = 4) + factor(year)
+  qmodel <- list(~ s(age, k = 4),~ s(age, k = 4))
+  rmodel <- ~ factor(year)
+  fit <- a4aFit(fmodel, qmodel, rmodel, ple4, ple4.indices[1:2]) 
+  f <- harvest(fit)[drop=TRUE]
+  ages <- an(dimnames(f)$age)
+  years <- an(dimnames(f)$year)
+  p <- wireframe(f, zlim = c(min(f), max(f)), nlevels = 10,
+          panel.3d.wireframe = panel.3d.levelplot,
+          at = pretty(f, 10),
+          shade = TRUE, panel.aspect = 1, aspect=c(length(years)/length(ages), 2),
+          col.regions = colorRampPalette(rev(cols))(100),
+          screen = list(z = 240, x = -60),
+          par.settings = list(axis.line = list(col = "transparent")),
+          par.box = c(col = "transparent"),
+          xlab = "", ylab = "", zlab = "")
+@
+<<fig=TRUE, echo=FALSE, fig.cap="A simple example: seperable F", fig.lab="desc01", crop=TRUE>>= 
+  print(p)
+@ 
+\begin{align*}
+  \log F_{at} &\sim \text{s}(age, 4) + \text{factor}(year) \\
+  \log Q_{a}  &\sim \text{s}(age, 4)
+\end{align*}
+
+
+\subsection*{A more complex example: Changing F pattern}
+
+<<echo=FALSE, results='hide', message=FALSE, warning=FALSE>>=
+  data(ple4)
+  data(ple4.indices)
+  fmodel <- ~ te(age, year, k = c(4, 30))
+  qmodel <- list(~ s(age, k = 4),~ s(age, k = 4))
+  rmodel <- ~ factor(year)
+  fit <- a4aFit(fmodel, qmodel, rmodel, ple4, ple4.indices[1:2]) 
+  f <- harvest(fit)[drop=TRUE]
+  ages <- an(dimnames(f)$age)
+  years <- an(dimnames(f)$year)
+  p <- wireframe(f, zlim = c(min(f), max(f)), nlevels = 10,
+          panel.3d.wireframe = panel.3d.levelplot,
+          at = pretty(f, 10),
+          shade = TRUE, panel.aspect = 1, aspect=c(length(years)/length(ages), 2),
+          col.regions = colorRampPalette(rev(cols))(100),
+          screen = list(z = 240, x = -60),
+          par.settings = list(axis.line = list(col = "transparent")),
+          par.box = c(col = "transparent"),
+          xlab = "", ylab = "", zlab = "")
+@
+<<fig=TRUE, echo=FALSE, fig.cap="A more complex example: Changing F pattern", fig.lab="desc02", crop=TRUE>>= 
+  print(p)
+@ 
+\begin{align*}
+  \log F_{at} &\sim \text{s}(age, year, (4,30)) \\
+  \log Q_{a}  &\sim \text{s}(age, 4)
+\end{align*}
+
+
+\subsection*{Extensions}
+
+We can introduce covariates through the formulas. Include tecnological creep in surveys. Add temperature data to recruitment. Model spikes in recruitment in terms of environmental covariates. we can allow changes in survey selectivity. by using 2d smooths - useful perhaps for North Sea plaice surveys
+
+However, The model has the potential to be very complex: random effects (fixed variance) around log F, log Q, log R; All the complaints people have with gams exist here.  But,we can package it to reduce the options available:
+  \begin{itemize}
+    \item stable fishery (seperable F)
+    \item Changing fishery (F pattern can evolve)
+    \item Impose exponential survey selectivity
+    \item impose flat top selection
+  \end{itemize}
+
+
+\section*{Model Tests}
+
+Here follows the simulation testing design:
+
+\begin{enumerate}
+	\item Tests run on WKLIFE simulated stocks.
+	\item Stocks in 5 different exploitation status used:
+	\begin{itemize}
+		\item developing
+		\item developing and stabilizing
+		\item stable at high exploitation
+		\item recovery
+		\item full developing-stable-recovery
+	\end{itemize}
+	\item Data series 15 years long, except "full" with 50 years.
+	\item Survey index with decreasing catchability, bottom trawl type, with 10\% cv. Note that the survey index becomes very informative with abundance between all ages correlated. 
+	\item Catch-at-age with 10\% cv observation error. 
+\end{enumerate}
+
+\subsection*{Inputs}
+\subsubsection*{Developing}
+
+<<fig=TRUE, echo=FALSE, fig.cap="Developing fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh01">>=
+plot(FLStocks(lapply(stks01, "[[", "stock")))
+@
+
+\subsubsection*{Developing and stabilizing}
+<<fig=TRUE, echo=FALSE, fig.cap="Developing and stabilizing fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh02">>=
+plot(FLStocks(lapply(stks02, "[[", "stock")))
+@
+
+\subsubsection*{Stable at high exploitation}
+<<fig=TRUE, echo=FALSE, fig.cap="Stable at high exploitation fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh03">>=
+plot(FLStocks(lapply(stks03, "[[", "stock")))
+@
+
+\subsubsection*{Recovery}
+<<fig=TRUE, echo=FALSE, fig.cap="Recovery fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh04">>=
+plot(FLStocks(lapply(stks04, "[[", "stock")))
+@
+
+\subsubsection*{Full developing-stable-recovery}
+<<fig=TRUE, echo=FALSE, fig.cap="Full developing-stable-recovery fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh05">>=
+plot(FLStocks(lapply(stks05, "[[", "stock")))
+@
+
+\subsubsection*{Generating survey index and adding observation error to catches}
+
+<<>>=
+set.seed(239246)
+stks01 <- mclapply(stks01, genObs)
+@
+
+<<>>=
+genObs
+@
+
+<<>>=
+stks02 <- mclapply(stks02, genObs)
+#
+stks03 <- mclapply(stks03, genObs)
+#
+stks04 <- mclapply(stks04, genObs)
+#
+stks05 <- mclapply(stks05, genObs)
+@
+
+\subsubsection*{Model fit}
+
+The model chosen for simulation testing has an evolving F pattern in which the F-at-age patter has 4 degrees of freedom and evovles over time with 10 degrees of freedom.
+
+<<>>=
+fmodel <- ~ te(age, year, k = c(4, 10))
+qmodel <- list(~ factor(age))
+@
+
+<<>>=
+fits01 <- mclapply(stks01, doFits, fmodel = fmodel, qmodel = qmodel)
+@
+
+here the fitting function has been placed in a wrapper function to catch errors.  Normally the user would fit the model using a single call to \verb|a4aFit|
+<<>>=
+doFits
+@
+
+
+<<>>=
+fits02 <- mclapply(stks02, doFits, fmodel = fmodel, qmodel = qmodel)
+@
+<<>>=
+fits03 <- mclapply(stks03, doFits, fmodel = fmodel, qmodel = qmodel)
+@
+<<>>=
+fits04 <- mclapply(stks04, doFits, fmodel = fmodel, qmodel = qmodel)
+@
+<<>>=
+fits05 <- mclapply(stks05, doFits, fmodel = fmodel, qmodel = qmodel)
+@
+
+\subsection*{Model diagnostics}
+\subsubsection*{Developing}
+
+<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colours represent ages", fig.keep="high", fig.height=3>>=
+doPlots(fits01)
+@
+
+\subsubsection*{Developing and stabilizing}
+
+<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+doPlots(fits02)
+@
+
+\subsubsection*{Stable at high exploitation}
+
+<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+doPlots(fits03)
+@
+
+\subsubsection*{Recovery}
+
+<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+doPlots(fits04)
+@
+
+\subsubsection*{Full developing-stable-recovery}
+
+<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+doPlots(fits05)
+@
+
+
+\section*{Appendix}
+
+\subsection*{R Session Information}
+<<>>=
+sessionInfo()
+@
+
+\end{document}
+

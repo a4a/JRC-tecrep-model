@@ -1,0 +1,625 @@
+\documentclass[a4paper]{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage[bottom]{footmisc}
+\geometry{verbose,a4paper,tmargin=3cm,bmargin=2cm,lmargin=2cm,rmargin=3cm}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\title{a4a assessment model tests \#01}
+\author{}
+\maketitle
+\begin{abstract}
+a4a assessment model tests
+\end{abstract} 
+
+\pagebreak
+\section{Introduction}
+
+\begin{enumerate}
+	\item Tests run on WKLIFE simulated stocks.
+	\item Stocks in 5 different exploitation status used:
+	\begin{itemize}
+		\item developing
+		\item developing and stabilizing
+		\item stable at high exploitation
+		\item recovery
+		\item full developing-stable-recovery
+	\end{itemize}
+	\item Data series 15 years long, except "full" with 50 years.
+	\item Survey index with decreasing catchability, bottom trawl type, with 10\% cv. Note that the survey index becomes very informative with abundance between all ages correlated. 
+	\item Catch-at-age with 10\% cv observation error. 
+\end{enumerate}
+
+
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlfunctioncall{sessionInfo}()
+\end{alltt}
+\begin{verbatim}
+## R version 2.15.2 (2012-10-26)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=C                 LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] splines   grid      datasets  utils     stats     graphics  grDevices
+## [8] methods   base     
+## 
+## other attached packages:
+##  [1] multicore_0.1-7  Hmisc_3.10-1     survival_2.36-14 plyr_1.7.1      
+##  [5] FLa4av2_0.1.1    mgcv_1.7-22      Matrix_1.0-10    FLAssess_2.5.0  
+##  [9] FLCore_2.5.0     knitr_0.8        lattice_0.20-10  MASS_7.3-22     
+## [13] vimcom_0.9-2     setwidth_1.0-0   colorout_0.9-9  
+## 
+## loaded via a namespace (and not attached):
+## [1] cluster_1.14.3 digest_0.5.2   evaluate_0.4.2 formatR_0.6   
+## [5] nlme_3.1-105   stats4_2.15.2  stringr_0.6.1  tools_2.15.2
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+
+
+\section{Inputs}
+\subsection{Developing}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-4} 
+
+}
+
+\caption[Developing fishery]{Developing fishery. Stocks based on WKLIFE life history parameters list.\label{fig:unnamed-chunk-4}}
+\end{figure}
+
+\end{knitrout}
+
+
+%\subsection{Developing and stabilizing}
+%<<fig=TRUE, echo=FALSE, fig.cap="Developing and stabilizing fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh02">>=
+%plot(FLStocks(lapply(stks02, "[[", "stock")))
+%@
+
+%\subsection{Stable at high exploitation}
+%<<fig=TRUE, echo=FALSE, fig.cap="Stable at high exploitation fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh03">>=
+%plot(FLStocks(lapply(stks03, "[[", "stock")))
+%@
+
+%\subsection{Recovery}
+%<<fig=TRUE, echo=FALSE, fig.cap="Recovery fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh04">>=
+%plot(FLStocks(lapply(stks04, "[[", "stock")))
+%@
+
+%\subsection{Full developing-stable-recovery}
+%<<fig=TRUE, echo=FALSE, fig.cap="Full developing-stable-recovery fishery. Stocks based on WKLIFE life history parameters list.", fig.lab="eh05">>=
+%plot(FLStocks(lapply(stks05, "[[", "stock")))
+%@
+
+\subsection{Generating survey index and adding observation error to catches}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlfunctioncall{set.seed}(239246)
+stks01 <- \hlfunctioncall{mclapply}(stks01, genObs)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+%#
+%stks02 <- mclapply(stks02, genObs)
+%#
+%stks03 <- mclapply(stks03, genObs)
+%#
+%stks04 <- mclapply(stks04, genObs)
+%#
+%stks05 <- mclapply(stks05, genObs)
+%@
+
+\section{Model fit}
+
+The setting of these models require more explanation. At some point we need to develop a simpler interface so not-so-technical users can run the model.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fmodel <- ~\hlfunctioncall{bs}(age, 4) + \hlfunctioncall{factor}(year)
+qmodel <- \hlfunctioncall{list}(~\hlfunctioncall{factor}(age))
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+fits01 <- \hlfunctioncall{mclapply}(stks01, doFits, fmodel = fmodel, qmodel = qmodel)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+%<<>>=
+%fits02 <- mclapply(stks02, doFits, fmodel = fmodel, qmodel = qmodel)
+%@
+%<<>>=
+%fits03 <- mclapply(stks03, doFits, fmodel = fmodel, qmodel = qmodel)
+%@
+%<<>>=
+%fits04 <- mclapply(stks04, doFits, fmodel = fmodel, qmodel = qmodel)
+%@
+%<<>>=
+%fits05 <- mclapply(stks05, doFits, fmodel = fmodel, qmodel = qmodel)
+%@
+
+\section{Model diagnostics}
+\subsection{Developing}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-81} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-81}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-82} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-82}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-83} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-83}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-84} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-84}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-85} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-85}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-86} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-86}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-87} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-87}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-88} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-88}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-89} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-89}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-810} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-810}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-811} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-811}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-812} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-812}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-813} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-813}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-814} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-814}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-815} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-815}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-816} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-816}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-817} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-817}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-818} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-818}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-819} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-819}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-820} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-820}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-821} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-821}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-822} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-822}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-823} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-823}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-824} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-824}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-825} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-825}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-826} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-826}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-827} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-827}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-828} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-828}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-829} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-829}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-830} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-830}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-831} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-831}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-832} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-832}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-833} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-833}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-834} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-834}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-835} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-835}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-836} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-836}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-837} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-837}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-838} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-838}}
+\end{figure}
+\begin{figure}[H]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/unnamed-chunk-839} 
+
+}
+
+\caption[Model residuals]{Model residuals. Colours represent ages\label{fig:unnamed-chunk-839}}
+\end{figure}
+\begin{kframe}
+
+{\ttfamily\noindent\bfseries\textcolor{errorcolor}{\#\# Error: need finite 'ylim' values}}\end{kframe}
+\end{knitrout}
+
+
+%\subsection{Developing and stabilizing}
+%\newpage
+
+%<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+%doPlots(fits02)
+%@
+
+%\subsection{Stable at high exploitation}
+
+%<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+%doPlots(fits03)
+%@
+
+%\subsection{Recovery}
+
+%<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+%doPlots(fits04)
+%@
+
+%\subsection{Full developing-stable-recovery}
+
+%<<fig=TRUE, echo=FALSE, fig.cap="Model residuals. Colors represent ages", fig.keep="high", fig.height=3>>=
+%doPlots(fits05)
+%@
+
+%\section{Auxiliary functions}
+
+%<<>>=
+%outStats
+%@
+
+%<<>>=
+%summStats
+%@
+
+\end{document}
+
